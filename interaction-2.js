@@ -52,12 +52,12 @@ engine2.createDSP(audioContext, 1024)
 //==========================================================================================
 
 function accelerationChange(accx, accy, accz) {
-    const forward = accy;
+    const forward = Math.abs(accy);
     if (!Number.isFinite(forward) || forward < 1.5) {
         return;
     }
 
-    const speed = Math.min(0.8, 0.3 + (forward - 3) * 0.05);
+    const speed = Math.min(0.8, 0.3 + (forward - 1.5) * 0.05);
     playAudio(speed);
 }
 
@@ -65,7 +65,7 @@ function rotationChange(rotx, roty, rotz) {
 }
 
 function mousePressed() {
-    playAudio();
+    playAudio(0.55£©;
     // Use this for debugging from the desktop!
 }
 
