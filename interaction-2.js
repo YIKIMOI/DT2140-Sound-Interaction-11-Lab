@@ -12,7 +12,7 @@ let dspNodeParams = null;
 let jsonParams = null;
 
 // Change here to ("tuono") depending on your wasm file name
-const dspName = "bells";
+const dspName = "engine2";
 const instance = new FaustWasm2ScriptProcessor(dspName);
 
 // output to window or npm package module
@@ -25,7 +25,7 @@ if (typeof module === "undefined") {
 }
 
 // The name should be the same as the WASM file, so change tuono with brass if you use brass.wasm
-bells.createDSP(audioContext, 1024)
+engine2.createDSP(audioContext, 1024)
     .then(node => {
         dspNode = node;
         dspNode.connect(audioContext.destination);
@@ -52,14 +52,20 @@ bells.createDSP(audioContext, 1024)
 //==========================================================================================
 
 function accelerationChange(accx, accy, accz) {
-    // playAudio()
+    const forward = accy;
+    if (!Number.isFinite(forward) || forward < 3) {
+        return;
+    }
+
+    const speed = Math.min(0.8, 0.3 + (forward - 3) * 0.05);
+    playAudio(speed);
 }
 
 function rotationChange(rotx, roty, rotz) {
 }
 
 function mousePressed() {
-    // playAudio()
+    playAudio();
     // Use this for debugging from the desktop!
 }
 
@@ -95,17 +101,24 @@ function getMinMaxParam(address) {
 //
 //==========================================================================================
 
-function playAudio() {
-    if (!dspNode) {
-        return;
-    }
-    if (audioContext.state === 'suspended') {
-        return;
-    }
-    dspNode.setParamValue("/englishBell/gate", 1)
-    setTimeout(() => { dspNode.setParamValue("/englishBell/gate", 0) }, 100);
-}
 
+let nextRevTime = 0;
+
+function playAudio(speed) {
+    const now = performance.now();
+    if (!dspNode || audioContext.state !== "running" || now < nextRevTime) {
+        return;
+    }
+
+    nextRevTime = now + 1100;
+    dspNode.setParamValue("/engine/runtime", 0.45);
+    dspNode.setParamValue("/engine/maxSpeed", speed);
+    dspNode.setParamValue("/engine/gate", 1);
+
+    setTimeout(() => {
+        dspNode.setParamValue("/engine/gate", 0);
+    }, 550);
+}
 //==========================================================================================
 // END
 //==========================================================================================
