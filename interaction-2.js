@@ -12,7 +12,7 @@ let dspNodeParams = null;
 let jsonParams = null;
 
 // Change here to ("tuono") depending on your wasm file name
-const dspName = "engine2";
+const dspName = "thunder";
 const instance = new FaustWasm2ScriptProcessor(dspName);
 
 // output to window or npm package module
@@ -25,7 +25,7 @@ if (typeof module === "undefined") {
 }
 
 // The name should be the same as the WASM file, so change tuono with brass if you use brass.wasm
-engine2.createDSP(audioContext, 1024)
+thunder.createDSP(audioContext, 1024)
     .then(node => {
         dspNode = node;
         dspNode.connect(audioContext.destination);
@@ -52,14 +52,31 @@ engine2.createDSP(audioContext, 1024)
 //==========================================================================================
 
 function accelerationChange(accx, accy, accz) {
-    const forward = Math.abs(accy);
-    if (!Number.isFinite(forward) || forward < 1.5) {
+   
+}
+
+let lastThunderTime = -Infinity;
+
+window.addEventListener("devicemotion", (event) => {
+    const acceleration = event.accelerationIncludingGravity;
+    if (!acceleration || !dspNode || audioContext.state !== "running") {
         return;
     }
 
-    const speed = Math.min(0.8, 0.3 + (forward - 1.5) * 0.05);
-    playAudio(speed);
-}
+    const { x, y, z } = acceleration;
+    if (![x, y, z].every(Number.isFinite)) {
+        return;
+    }
+
+    const force = Math.hypot(x, y, z);
+    const now = performance.now();
+
+    // Large downward movement ¡ú Thunder
+    if (force < 7.5 && now - lastThunderTime >= 1500) {
+        lastThunderTime = now;
+        playAudio();
+    }
+});
 
 function rotationChange(rotx, roty, rotz) {
 }
@@ -80,7 +97,6 @@ function deviceTurned() {
 function deviceShaken() {
     shaketimer = millis();
     statusLabels[0].style("color", "pink");
-    playAudio();
 }
 
 function getMinMaxParam(address) {
