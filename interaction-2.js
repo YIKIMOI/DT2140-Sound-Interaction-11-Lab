@@ -53,7 +53,7 @@ engine2.createDSP(audioContext, 1024)
 
 function accelerationChange(accx, accy, accz) {
     const forward = accy;
-    if (!Number.isFinite(forward) || forward < 3) {
+    if (!Number.isFinite(forward) || forward < 1.5) {
         return;
     }
 
