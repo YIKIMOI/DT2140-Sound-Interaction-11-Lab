@@ -25,7 +25,7 @@ if (typeof module === "undefined") {
 }
 
 // The name should be the same as the WASM file, so change tuono with brass if you use brass.wasm
-thunder.createDSP(audioContext, 1024)
+instance.createDSP(audioContext, 1024)
     .then(node => {
         dspNode = node;
         dspNode.connect(audioContext.destination);
@@ -82,7 +82,7 @@ function rotationChange(rotx, roty, rotz) {
 }
 
 function mousePressed() {
-    playAudio(0.55£©;
+    playAudio(0.55);
     // Use this for debugging from the desktop!
 }
 
@@ -120,20 +120,16 @@ function getMinMaxParam(address) {
 
 let nextRevTime = 0;
 
-function playAudio(speed) {
-    const now = performance.now();
-    if (!dspNode || audioContext.state !== "running" || now < nextRevTime) {
+
+function playAudio() {
+    if (!dspNode || audioContext.state !== "running") {
         return;
     }
 
-    nextRevTime = now + 1100;
-    dspNode.setParamValue("/engine/runtime", 0.45);
-    dspNode.setParamValue("/engine/maxSpeed", speed);
-    dspNode.setParamValue("/engine/gate", 1);
-
+    dspNode.setParamValue("/thunder/rumble", 1);
     setTimeout(() => {
-        dspNode.setParamValue("/engine/gate", 0);
-    }, 550);
+        dspNode.setParamValue("/thunder/rumble", 0);
+    }, 100);
 }
 //==========================================================================================
 // END
